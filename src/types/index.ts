@@ -8,6 +8,7 @@ export interface ImageUpload {
   type: string;
   uploadedAt: Date;
   url?: string;
+  isUrl?: boolean; // 标记是否为URL来源的图片
 }
 
 // 分析记录类型

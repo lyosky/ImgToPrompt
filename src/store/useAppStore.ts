@@ -167,27 +167,34 @@ export const useAppStore = create<AppState>((set, get) => ({
       
       let imageData: string | File;
       
-      // 如果有ImgBB API Key，尝试上传图片
-      if (apiConfig.imgbbKey) {
-        try {
-          const imageUrl = await get().uploadImageToImgBB(currentImage.file);
-          imageData = imageUrl;
-          
-          // 更新当前图片的上传URL
-          set({
-            currentImage: {
-              ...currentImage,
-              url: imageUrl,
-            },
-          });
-        } catch (uploadError) {
-          console.warn('ImgBB upload failed, using local file:', uploadError);
-          // 如果上传失败，直接使用文件
+      // 检查是否是URL来源的图片
+      if (currentImage.isUrl && currentImage.url) {
+        // URL图片直接使用URL，不需要上传
+        imageData = currentImage.url;
+      } else {
+        // 文件上传的图片处理逻辑
+        // 如果有ImgBB API Key，尝试上传图片
+        if (apiConfig.imgbbKey) {
+          try {
+            const imageUrl = await get().uploadImageToImgBB(currentImage.file);
+            imageData = imageUrl;
+            
+            // 更新当前图片的上传URL
+            set({
+              currentImage: {
+                ...currentImage,
+                url: imageUrl,
+              },
+            });
+          } catch (uploadError) {
+            console.warn('ImgBB upload failed, using local file:', uploadError);
+            // 如果上传失败，直接使用文件
+            imageData = currentImage.file;
+          }
+        } else {
+          // 直接使用文件
           imageData = currentImage.file;
         }
-      } else {
-        // 直接使用文件
-        imageData = currentImage.file;
       }
       
       // 调用OpenRouter API分析图片

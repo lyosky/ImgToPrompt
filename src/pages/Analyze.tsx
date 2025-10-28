@@ -78,20 +78,20 @@ export function Analyze() {
     try {
       clearError();
       
-      // 创建一个虚拟的File对象用于URL图片
-      const response = await fetch(imageUrl.trim());
-      const blob = await response.blob();
-      const file = new File([blob], 'URL图片', { type: blob.type });
+      // 直接创建包含URL信息的ImageUpload对象，不下载图片
+      const urlObj = new URL(imageUrl.trim());
+      const fileName = urlObj.pathname.split('/').pop() || 'URL图片';
       
       setCurrentImage({
         id: Date.now().toString(),
-        file: file,
+        file: null as any, // URL模式下不需要File对象
         preview: imageUrl.trim(),
-        name: 'URL图片',
-        size: blob.size,
-        type: blob.type,
+        name: fileName,
+        size: 0, // URL模式下无法预知大小
+        type: 'image/*', // 通用图片类型
         uploadedAt: new Date(),
-        url: imageUrl.trim()
+        url: imageUrl.trim(),
+        isUrl: true // 标记这是URL来源的图片
       });
       
       setImageUrl('');
